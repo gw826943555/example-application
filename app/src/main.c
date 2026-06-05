@@ -8,6 +8,7 @@
 #include <zephyr/logging/log.h>
 #include <stdlib.h>
 
+#include <app/display.h>
 #include <app/drivers/blink.h>
 
 #include <app_version.h>
@@ -24,6 +25,8 @@ int main(void)
 
 	printk("Zephyr Example Application %s\n", APP_VERSION_STRING);
 
+	display_thread_start();
+
 	blink = DEVICE_DT_GET(DT_NODELABEL(blink_led));
 	if (!device_is_ready(blink)) {
 		LOG_ERR("Blink LED not ready");
@@ -39,7 +42,17 @@ int main(void)
 	printk("Use the sensor to change LED blinking period\n");
 
 	while (1) {
-		blink_set_period_ms(blink, rand() % BLINK_PERIOD_MS_MAX);
+		uint32_t period_ms = (uint32_t)(rand() % BLINK_PERIOD_MS_MAX);
+		struct display_msg dmsg = {
+			.kind = DISPLAY_MSG_POWER,
+			.arg = period_ms,
+		};
+
+		blink_set_period_ms(blink, (int)period_ms);
+
+		if (display_post(&dmsg, K_NO_WAIT) != 0) {
+			printk("main: display queue full, drop update\n");
+		}
 
 		k_sleep(K_MSEC(1000));
 	}
