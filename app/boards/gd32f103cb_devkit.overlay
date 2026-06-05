@@ -1,15 +1,20 @@
 /*
  * Copyright (c) 2021 Nordic Semiconductor ASA
  * SPDX-License-Identifier: Apache-2.0
- */
-
-/* This devicetree overlay file will be automatically picked by the Zephyr
- * build system when building the sample for the nucleo_f302r8 board. It shows
- * how the example-application can be built on sample boards already provided
- * by Zephyr.
+ *
+ * GD32F103CB devkit: example blink + no USART console (use SEGGER RTT for printk).
+ *
+ * Kconfig for RTT is in boards/gd32f103cb_devkit.conf (merged automatically for
+ * this board). Upstream board sets zephyr,console / zephyr,shell-uart to &usart0;
+ * this overlay removes that binding and disables USART0.
  */
 
 / {
+	chosen {
+		/delete-property/ zephyr,console;
+		/delete-property/ zephyr,shell-uart;
+	};
+
 	blink_led: blink-led {
 		compatible = "blink-gpio-led";
 		led-gpios = <&gpioc 13 GPIO_ACTIVE_LOW>;
@@ -19,4 +24,8 @@
 
 &gpioc {
 	status = "okay";
+};
+
+&usart0 {
+	status = "disabled";
 };
