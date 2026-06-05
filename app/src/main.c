@@ -6,7 +6,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/sensor.h>
 #include <zephyr/logging/log.h>
-#include <random/rand32.h>
+#include <stdlib.h>
 
 #include <app/drivers/blink.h>
 
@@ -39,7 +39,7 @@ int main(void)
 	printk("Use the sensor to change LED blinking period\n");
 
 	while (1) {
-		blink_set_period_ms(blink, sys_rand32_get() % BLINK_PERIOD_MS_MAX);
+		blink_set_period_ms(blink, rand() % BLINK_PERIOD_MS_MAX);
 
 		k_sleep(K_MSEC(1000));
 	}
